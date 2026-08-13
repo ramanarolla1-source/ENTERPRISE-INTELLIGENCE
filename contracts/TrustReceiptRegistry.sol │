@@ -1,1 +1,418 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
 
+/**
+ * @title TrustReceiptRegistry
+ * @notice
+ *   Registry for long-lived Enterprise Intelligence Trust Receipts.
+ *
+ *   A Trust Receipt preserves the cryptographic identity of the protected
+ *   decision record and provides a permanent on-chain reference to the
+ *   evidence, analysis, authorization and execution history associated
+ *   with an enterprise decision.
+ *
+ *   IMPORTANT:
+ *   The contract does NOT store confidential receipt contents or encryption
+ *   keys on-chain.
+ *
+ *   Sensitive receipt content is expected to remain encrypted in protected
+ *   storage. The blockchain stores commitments, timestamps, decision
+ *   references and non-sensitive metadata that allow authorized systems to
+ *   prove that the protected receipt has not been altered.
+ *
+ *   The registry also supports superseding a receipt with a later authorized
+ *   receipt without deleting the historical record.
+ */
+contract TrustReceiptRegistry {
+    // ---------------------------------------------------------------------
+    // Enums
+    // ---------------------------------------------------------------------
+
+    enum ReceiptState {
+        Active,
+        Superseded
+    }
+
+    // ---------------------------------------------------------------------
+    // Data structures
+    // ---------------------------------------------------------------------
+
+    struct TrustReceipt {
+        bytes32 receiptId;
+
+        // Corresponding Enterprise Intelligence decision.
+        bytes32 decisionId;
+
+        // Cryptographic commitment to the complete protected receipt.
+        bytes32 receiptCommitment;
+
+        // Commitment to the evidence set used by the decision.
+        bytes32 evidenceCommitment;
+
+        // Commitment to the decision state / outcome.
+        bytes32 decisionCommitment;
+
+        // Reference to encrypted off-chain receipt storage.
+        // Must not contain confidential material directly.
+        string encryptedReceiptReference;
+
+        // Receipt version allows future revisions without rewriting history.
+        uint32 version;
+
+        // Previous receipt in the same decision history.
+        bytes32 previousReceiptId;
+
+        // Address that registered the receipt.
+        address issuer;
+
+        // State of this historical receipt.
+        ReceiptState state;
+
+        uint64 createdAt;
+        uint64 supersededAt;
+    }
+
+    // ---------------------------------------------------------------------
+    // Storage
+    // ---------------------------------------------------------------------
+
+    mapping(bytes32 => TrustReceipt) private receipts;
+
+    mapping(bytes32 => bool) public receiptExists;
+
+    // Latest receipt for a given enterprise decision.
+    mapping(bytes32 => bytes32) public latestReceiptForDecision;
+
+    // Optional application-level authorization registry.
+    //
+    // IMPORTANT:
+    // This does NOT make blockchain data private. It represents the
+    // enterprise's declared authorization layer. Actual confidentiality
+    // must be enforced by encrypted storage / key management off-chain.
+    mapping(bytes32 => mapping(address => bool))
+        public authorizedViewers;
+
+    // ---------------------------------------------------------------------
+    // Events
+    // ---------------------------------------------------------------------
+
+    event TrustReceiptRegistered(
+        bytes32 indexed receiptId,
+        bytes32 indexed decisionId,
+        bytes32 indexed receiptCommitment,
+        uint32 version,
+        address issuer,
+        uint256 timestamp
+    );
+
+    event TrustReceiptSuperseded(
+        bytes32 indexed previousReceiptId,
+        bytes32 indexed newReceiptId,
+        bytes32 indexed decisionId,
+        uint256 timestamp
+    );
+
+    event ViewerAuthorizationChanged(
+        bytes32 indexed receiptId,
+        address indexed viewer,
+        bool authorized
+    );
+
+    // ---------------------------------------------------------------------
+    // Modifiers
+    // ---------------------------------------------------------------------
+
+    modifier receiptExistsOnly(bytes32 receiptId) {
+        require(
+            receiptExists[receiptId],
+            "TrustReceiptRegistry: receipt not found"
+        );
+        _;
+    }
+
+    // ---------------------------------------------------------------------
+    // Receipt registration
+    // ---------------------------------------------------------------------
+
+    /**
+     * @notice Register a new Trust Receipt.
+     *
+     * @param receiptId Unique identifier for the receipt.
+     * @param decisionId Related Enterprise Intelligence decision.
+     * @param receiptCommitment Hash/commitment of the complete protected receipt.
+     * @param evidenceCommitment Commitment to the verified evidence set.
+     * @param decisionCommitment Commitment to the resulting decision state.
+     * @param encryptedReceiptReference Non-sensitive reference to encrypted storage.
+     * @param version Version of the receipt for this decision.
+     * @param previousReceiptId Previous receipt when creating a new version;
+     *        use bytes32(0) for the first receipt.
+     */
+    function registerReceipt(
+        bytes32 receiptId,
+        bytes32 decisionId,
+        bytes32 receiptCommitment,
+        bytes32 evidenceCommitment,
+        bytes32 decisionCommitment,
+        string calldata encryptedReceiptReference,
+        uint32 version,
+        bytes32 previousReceiptId
+    ) external {
+        require(
+            receiptId != bytes32(0),
+            "TrustReceiptRegistry: invalid receipt ID"
+        );
+
+        require(
+            decisionId != bytes32(0),
+            "TrustReceiptRegistry: invalid decision ID"
+        );
+
+        require(
+            !receiptExists[receiptId],
+            "TrustReceiptRegistry: receipt already exists"
+        );
+
+        require(
+            receiptCommitment != bytes32(0),
+            "TrustReceiptRegistry: invalid receipt commitment"
+        );
+
+        require(
+            evidenceCommitment != bytes32(0),
+            "TrustReceiptRegistry: invalid evidence commitment"
+        );
+
+        require(
+            decisionCommitment != bytes32(0),
+            "TrustReceiptRegistry: invalid decision commitment"
+        );
+
+        require(
+            version > 0,
+            "TrustReceiptRegistry: invalid version"
+        );
+
+        if (previousReceiptId != bytes32(0)) {
+            require(
+                receiptExists[previousReceiptId],
+                "TrustReceiptRegistry: previous receipt not found"
+            );
+
+            TrustReceipt storage previous = receipts[previousReceiptId];
+
+            require(
+                previous.decisionId == decisionId,
+                "TrustReceiptRegistry: decision mismatch"
+            );
+        }
+
+        receipts[receiptId] = TrustReceipt({
+            receiptId: receiptId,
+            decisionId: decisionId,
+            receiptCommitment: receiptCommitment,
+            evidenceCommitment: evidenceCommitment,
+            decisionCommitment: decisionCommitment,
+            encryptedReceiptReference: encryptedReceiptReference,
+            version: version,
+            previousReceiptId: previousReceiptId,
+            issuer: msg.sender,
+            state: ReceiptState.Active,
+            createdAt: uint64(block.timestamp),
+            supersededAt: 0
+        });
+
+        receiptExists[receiptId] = true;
+
+        bytes32 previousLatest = latestReceiptForDecision[decisionId];
+
+        if (previousLatest != bytes32(0)) {
+            TrustReceipt storage oldLatest = receipts[previousLatest];
+
+            oldLatest.state = ReceiptState.Superseded;
+            oldLatest.supersededAt = uint64(block.timestamp);
+
+            emit TrustReceiptSuperseded(
+                previousLatest,
+                receiptId,
+                decisionId,
+                block.timestamp
+            );
+        }
+
+        latestReceiptForDecision[decisionId] = receiptId;
+
+        emit TrustReceiptRegistered(
+            receiptId,
+            decisionId,
+            receiptCommitment,
+            version,
+            msg.sender,
+            block.timestamp
+        );
+    }
+
+    // ---------------------------------------------------------------------
+    // Authorization
+    // ---------------------------------------------------------------------
+
+    /**
+     * @notice Grant or revoke application-level viewer authorization.
+     *
+     * This records enterprise authorization on-chain.
+     *
+     * Confidentiality itself must still be enforced by encrypted storage
+     * and appropriate key-management infrastructure.
+     */
+    function setViewerAuthorization(
+        bytes32 receiptId,
+        address viewer,
+        bool authorized
+    )
+        external
+        receiptExistsOnly(receiptId)
+    {
+        require(
+            viewer != address(0),
+            "TrustReceiptRegistry: invalid viewer"
+        );
+
+        // Prototype rule:
+        // The issuer of the receipt manages viewer authorization.
+        require(
+            receipts[receiptId].issuer == msg.sender,
+            "TrustReceiptRegistry: unauthorized administrator"
+        );
+
+        authorizedViewers[receiptId][viewer] = authorized;
+
+        emit ViewerAuthorizationChanged(
+            receiptId,
+            viewer,
+            authorized
+        );
+    }
+
+    /**
+     * @notice Returns whether an address is authorized by the enterprise
+     *         application layer to access a protected receipt.
+     */
+    function isAuthorizedViewer(
+        bytes32 receiptId,
+        address viewer
+    )
+        external
+        view
+        receiptExistsOnly(receiptId)
+        returns (bool)
+    {
+        return authorizedViewers[receiptId][viewer];
+    }
+
+    // ---------------------------------------------------------------------
+    // Verification
+    // ---------------------------------------------------------------------
+
+    /**
+     * @notice Verify a protected receipt against its on-chain commitment.
+     *
+     * An authorized application can calculate the commitment of the
+     * retrieved/decrypted receipt and compare it with this value.
+     */
+    function verifyReceiptCommitment(
+        bytes32 receiptId,
+        bytes32 suppliedCommitment
+    )
+        external
+        view
+        receiptExistsOnly(receiptId)
+        returns (bool)
+    {
+        return
+            receipts[receiptId].receiptCommitment ==
+            suppliedCommitment;
+    }
+
+    /**
+     * @notice Verify that the evidence commitment associated with a receipt
+     *         has not changed.
+     */
+    function verifyEvidenceCommitment(
+        bytes32 receiptId,
+        bytes32 suppliedEvidenceCommitment
+    )
+        external
+        view
+        receiptExistsOnly(receiptId)
+        returns (bool)
+    {
+        return
+            receipts[receiptId].evidenceCommitment ==
+            suppliedEvidenceCommitment;
+    }
+
+    /**
+     * @notice Verify that the recorded decision commitment matches a supplied
+     *         commitment.
+     */
+    function verifyDecisionCommitment(
+        bytes32 receiptId,
+        bytes32 suppliedDecisionCommitment
+    )
+        external
+        view
+        receiptExistsOnly(receiptId)
+        returns (bool)
+    {
+        return
+            receipts[receiptId].decisionCommitment ==
+            suppliedDecisionCommitment;
+    }
+
+    // ---------------------------------------------------------------------
+    // Read functions
+    // ---------------------------------------------------------------------
+
+    /**
+     * @notice Returns a Trust Receipt's public metadata.
+     *
+     * Confidential receipt contents are intentionally NOT returned because
+     * they are expected to remain in encrypted protected storage.
+     */
+    function getReceipt(
+        bytes32 receiptId
+    )
+        external
+        view
+        receiptExistsOnly(receiptId)
+        returns (TrustReceipt memory)
+    {
+        return receipts[receiptId];
+    }
+
+    /**
+     * @notice Returns the latest Trust Receipt registered for a decision.
+     */
+    function getLatestReceipt(
+        bytes32 decisionId
+    )
+        external
+        view
+        returns (bytes32)
+    {
+        return latestReceiptForDecision[decisionId];
+    }
+
+    /**
+     * @notice Returns the current state of a Trust Receipt.
+     */
+    function getReceiptState(
+        bytes32 receiptId
+    )
+        external
+        view
+        receiptExistsOnly(receiptId)
+        returns (ReceiptState)
+    {
+        return receipts[receiptId].state;
+    }
+}
