@@ -1,1 +1,169 @@
-
+{
+  "decision_id": "EI-2026-001",
+  "decision_type": "vendor_selection",
+  "title": "Strategic Vendor Selection",
+  "status": "executed",
+  "created_at": "2026-08-13T09:00:00Z",
+  "decision_context": {
+    "business_unit": "Enterprise Procurement",
+    "purpose": "Select the vendor offering the best risk-adjusted value for a strategic enterprise engagement",
+    "candidate_vendors": [
+      "Vendor A",
+      "Vendor B",
+      "Vendor C"
+    ]
+  },
+  "confidential_enterprise_inputs": {
+    "handling": "enterprise_controlled",
+    "public_disclosure": false,
+    "fields": [
+      "quoted_price",
+      "technical_suitability",
+      "negotiated_terms",
+      "commercial_proposal",
+      "internal_evaluation"
+    ],
+    "note": "Confidential vendor submissions remain outside the public evidence pipeline."
+  },
+  "source_intelligence": {
+    "ai_role": "qualify_and_rank_candidate_public_sources",
+    "evaluation_criteria": [
+      "authority",
+      "provenance",
+      "relevance",
+      "freshness",
+      "corroboration"
+    ],
+    "preferred_sources": [
+      {
+        "vendor": "Vendor A",
+        "source": "Official Regulatory API",
+        "source_type": "regulatory",
+        "authority": "high",
+        "provenance": "high",
+        "relevance": "high",
+        "freshness": "high",
+        "corroboration": "high",
+        "status": "preferred"
+      },
+      {
+        "vendor": "Vendor B",
+        "source": "Official Corporate Registry API",
+        "source_type": "registry",
+        "authority": "high",
+        "provenance": "high",
+        "relevance": "high",
+        "freshness": "high",
+        "corroboration": "medium",
+        "status": "preferred"
+      },
+      {
+        "vendor": "Vendor C",
+        "source": "Recognized Business Data API",
+        "source_type": "business_data",
+        "authority": "high",
+        "provenance": "medium",
+        "relevance": "high",
+        "freshness": "medium",
+        "corroboration": "medium",
+        "status": "preferred"
+      }
+    ]
+  },
+  "fdc_web2json": {
+    "enabled": true,
+    "attestation_type": "Web2Json",
+    "purpose": "Attest to the response returned by the selected supported Web2 source",
+    "source_scope": "supported_and_approved_sources",
+    "verification_status": "verified",
+    "evidence_commitments": {
+      "Vendor A": "0x1111111111111111111111111111111111111111111111111111111111111111",
+      "Vendor B": "0x2222222222222222222222222222222222222222222222222222222222222222",
+      "Vendor C": "0x3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    "note": "The commitment values are demonstration placeholders and do not represent live FDC proofs."
+  },
+  "verified_evidence": {
+    "Vendor A": {
+      "regulatory_status": "active",
+      "registration_status": "valid",
+      "recent_update": true,
+      "external_risk_signal": "low",
+      "evidence_confidence": 0.94
+    },
+    "Vendor B": {
+      "regulatory_status": "active",
+      "registration_status": "valid",
+      "recent_update": true,
+      "external_risk_signal": "medium",
+      "evidence_confidence": 0.89
+    },
+    "Vendor C": {
+      "regulatory_status": "active",
+      "registration_status": "review_required",
+      "recent_update": false,
+      "external_risk_signal": "high",
+      "evidence_confidence": 0.81
+    }
+  },
+  "ai_decision_intelligence": {
+    "role": "interpret_verified_evidence_and_rank_candidates",
+    "vendor_profiles": {
+      "Vendor A": {
+        "overall_risk": "low",
+        "confidence": 0.92,
+        "rank": 1,
+        "recommendation": "preferred"
+      },
+      "Vendor B": {
+        "overall_risk": "medium",
+        "confidence": 0.87,
+        "rank": 2,
+        "recommendation": "acceptable_alternative"
+      },
+      "Vendor C": {
+        "overall_risk": "high",
+        "confidence": 0.79,
+        "rank": 3,
+        "recommendation": "not_preferred"
+      }
+    },
+    "recommended_vendor": "Vendor A",
+    "reason": "Vendor A presents the strongest combination of verified external evidence, lower assessed external risk, and high evidence confidence."
+  },
+  "enterprise_policy": {
+    "policy_id": "PROCUREMENT-POLICY-V1.2",
+    "minimum_evidence_confidence": 0.80,
+    "maximum_permitted_risk": "medium",
+    "executive_approval_required": true,
+    "policy_result": "passed"
+  },
+  "authorization": {
+    "smart_account_enabled": true,
+    "authorized_account": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "approver_role": "Authorized Executive",
+    "approval_status": "approved",
+    "approved_at": "2026-08-13T09:18:00Z"
+  },
+  "trust_receipt": {
+    "receipt_id": "TR-EI-2026-001-V1",
+    "version": 1,
+    "state": "active",
+    "evidence_commitment": "0x4444444444444444444444444444444444444444444444444444444444444444",
+    "decision_commitment": "0x5555555555555555555555555555555555555555555555555555555555555555",
+    "receipt_commitment": "0x6666666666666666666666666666666666666666666666666666666666666666",
+    "storage": {
+      "type": "encrypted_off_chain",
+      "access_control": "authorized_executives_and_auditors",
+      "on_chain_anchor": true
+    }
+  },
+  "on_chain_decision": {
+    "network": "Flare",
+    "registry_contract": "0xBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+    "decision_state": "executed",
+    "transaction_hash": "0x7777777777777777777777777777777777777777777777777777777777777777",
+    "note": "Transaction and contract addresses are demonstration placeholders until a live deployment is available."
+  },
+  "governance_note": "This record is immutable as historical decision provenance. A future board may supersede this decision through a new authorized decision without rewriting the original record."
+}
