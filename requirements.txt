@@ -1,1 +1,14 @@
+# Enterprise Intelligence
+# Python 3.10+
 
+# Data validation and structured models
+pydantic>=2.7,<3
+
+# HTTP client for Web2/FDC integration adapters
+requests>=2.32,<3
+
+# Environment configuration
+python-dotenv>=1.0,<2
+
+# Cryptographic utilities
+cryptography>=42,<45
