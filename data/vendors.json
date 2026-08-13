@@ -1,1 +1,156 @@
-
+{
+  "dataset": {
+    "name": "Enterprise Intelligence Demonstration Vendors",
+    "version": "1.0",
+    "synthetic": true,
+    "purpose": "Demonstration dataset for evidence-backed vendor risk assessment and decision ranking."
+  },
+  "vendors": [
+    {
+      "vendor_id": "VND-001",
+      "name": "Vendor A",
+      "display_status": "candidate",
+      "private_enterprise_inputs": {
+        "quoted_price": {
+          "value": 10000000,
+          "currency": "USD",
+          "visibility": "private",
+          "source": "enterprise_submission"
+        },
+        "technical_suitability": {
+          "score": 91,
+          "visibility": "private",
+          "source": "enterprise_evaluation"
+        },
+        "commercial_terms": {
+          "status": "acceptable",
+          "visibility": "private",
+          "source": "enterprise_evaluation"
+        }
+      },
+      "public_evidence": {
+        "source_ids": [
+          "SRC-001",
+          "SRC-002",
+          "SRC-003"
+        ],
+        "regulatory_status": "active",
+        "registration_status": "valid",
+        "recent_update": true,
+        "external_risk_signal": "low",
+        "evidence_confidence": 0.94
+      },
+      "ai_assessment": {
+        "corporate_risk": "low",
+        "regulatory_risk": "low",
+        "operational_risk": "low",
+        "reputational_risk": "low",
+        "overall_risk": "low",
+        "confidence": 0.92,
+        "rank": 1,
+        "recommendation": "preferred"
+      }
+    },
+    {
+      "vendor_id": "VND-002",
+      "name": "Vendor B",
+      "display_status": "candidate",
+      "private_enterprise_inputs": {
+        "quoted_price": {
+          "value": 10400000,
+          "currency": "USD",
+          "visibility": "private",
+          "source": "enterprise_submission"
+        },
+        "technical_suitability": {
+          "score": 88,
+          "visibility": "private",
+          "source": "enterprise_evaluation"
+        },
+        "commercial_terms": {
+          "status": "acceptable_with_conditions",
+          "visibility": "private",
+          "source": "enterprise_evaluation"
+        }
+      },
+      "public_evidence": {
+        "source_ids": [
+          "SRC-002",
+          "SRC-003",
+          "SRC-005"
+        ],
+        "regulatory_status": "active",
+        "registration_status": "valid",
+        "recent_update": true,
+        "external_risk_signal": "medium",
+        "evidence_confidence": 0.89
+      },
+      "ai_assessment": {
+        "corporate_risk": "low",
+        "regulatory_risk": "medium",
+        "operational_risk": "medium",
+        "reputational_risk": "medium",
+        "overall_risk": "medium",
+        "confidence": 0.87,
+        "rank": 2,
+        "recommendation": "acceptable_alternative"
+      }
+    },
+    {
+      "vendor_id": "VND-003",
+      "name": "Vendor C",
+      "display_status": "candidate",
+      "private_enterprise_inputs": {
+        "quoted_price": {
+          "value": 9700000,
+          "currency": "USD",
+          "visibility": "private",
+          "source": "enterprise_submission"
+        },
+        "technical_suitability": {
+          "score": 93,
+          "visibility": "private",
+          "source": "enterprise_evaluation"
+        },
+        "commercial_terms": {
+          "status": "acceptable",
+          "visibility": "private",
+          "source": "enterprise_evaluation"
+        }
+      },
+      "public_evidence": {
+        "source_ids": [
+          "SRC-001",
+          "SRC-003",
+          "SRC-005"
+        ],
+        "regulatory_status": "active",
+        "registration_status": "review_required",
+        "recent_update": false,
+        "external_risk_signal": "high",
+        "evidence_confidence": 0.81
+      },
+      "ai_assessment": {
+        "corporate_risk": "medium",
+        "regulatory_risk": "high",
+        "operational_risk": "medium",
+        "reputational_risk": "high",
+        "overall_risk": "high",
+        "confidence": 0.79,
+        "rank": 3,
+        "recommendation": "not_preferred"
+      }
+    }
+  ],
+  "ranking_summary": {
+    "ranking_basis": [
+      "verified_external_evidence",
+      "ai_assessed_risk",
+      "evidence_confidence",
+      "enterprise_private_inputs"
+    ],
+    "recommended_vendor": "VND-001",
+    "recommended_vendor_name": "Vendor A",
+    "decision_note": "Vendor A provides the strongest risk-adjusted profile in the demonstration dataset. The recommendation is not based on price alone."
+  }
+}
