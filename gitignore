@@ -1,1 +1,118 @@
+# ============================================================
+# Enterprise Intelligence
+# ============================================================
 
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+
+*.so
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging / build
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Type checking / linters
+.mypy_cache/
+.pyre/
+.ruff_cache/
+
+# ---------- Environment / Secrets ----------
+.env
+.env.*
+!.env.example
+
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ---------- IDEs ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ---------- OS ----------
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ---------- Logs ----------
+*.log
+logs/
+
+# ---------- Local runtime data ----------
+.tmp/
+tmp/
+.cache/
+cache/
+
+# Do not commit locally generated receipts/evidence
+runtime/
+local_data/
+generated/
+outputs/
+
+# ---------- Blockchain / deployment ----------
+broadcast/
+deployments/
+artifacts/
+cache-hardhat/
+typechain/
+typechain-types/
+
+# Foundry
+out/
+lib/
+
+# ---------- Node ----------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------- Jupyter ----------
+.ipynb_checkpoints/
+
+# ---------- Local databases ----------
+*.db
+*.sqlite
+*.sqlite3
+
+# ---------- Secrets / private enterprise material ----------
+private/
+secrets/
+confidential/
+encrypted_receipts/
+
+# ---------- Temporary demo exports ----------
+demo/output/
+demo/recordings/
+demo/temp/
+
+# ---------- Generated files ----------
+*.tmp
+*.bak
+*.orig
