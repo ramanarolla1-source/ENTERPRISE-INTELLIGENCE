@@ -1,1 +1,191 @@
-
+{
+  "registry_version": "1.0",
+  "purpose": "Demonstration catalogue for evaluating and ranking public Web2 data sources before FDC/Web2Json verification.",
+  "evaluation_model": {
+    "method": "AI-assisted source qualification",
+    "principle": "AI evaluates source suitability; FDC provides attestation of the selected supported source response.",
+    "criteria": {
+      "authority": "Who operates or publishes the source?",
+      "provenance": "Can the origin and publisher of the information be established?",
+      "relevance": "Is the source appropriate for the specific enterprise decision?",
+      "freshness": "How current is the information?",
+      "corroboration": "Is the information supported by independent sources?"
+    },
+    "score_range": "0.00-1.00",
+    "classification": {
+      "preferred": ">= 0.85",
+      "secondary": "0.70-0.84",
+      "context_only": "0.50-0.69",
+      "reject": "< 0.50"
+    }
+  },
+  "sources": [
+    {
+      "source_id": "SRC-001",
+      "name": "Official Regulatory API",
+      "publisher": "Relevant Regulatory Authority",
+      "source_type": "regulatory",
+      "access_type": "public_api",
+      "url": "https://example-regulator.gov/api/entities",
+      "supports_web2json": true,
+      "ai_assessment": {
+        "authority": 0.99,
+        "provenance": 0.99,
+        "relevance": 0.96,
+        "freshness": 0.95,
+        "corroboration": 0.94,
+        "overall": 0.97,
+        "classification": "preferred"
+      },
+      "use_for": [
+        "regulatory_status",
+        "registration_status",
+        "licensing_status"
+      ],
+      "status": "eligible_for_fdc_verification",
+      "notes": "Demonstration source. Replace with an actually supported and approved endpoint before live deployment."
+    },
+    {
+      "source_id": "SRC-002",
+      "name": "Official Corporate Registry API",
+      "publisher": "Official Business Registry",
+      "source_type": "corporate_registry",
+      "access_type": "public_api",
+      "url": "https://example-registry.gov/api/company",
+      "supports_web2json": true,
+      "ai_assessment": {
+        "authority": 0.98,
+        "provenance": 0.98,
+        "relevance": 0.95,
+        "freshness": 0.94,
+        "corroboration": 0.91,
+        "overall": 0.95,
+        "classification": "preferred"
+      },
+      "use_for": [
+        "company_existence",
+        "registration_status",
+        "corporate_status"
+      ],
+      "status": "eligible_for_fdc_verification",
+      "notes": "Demonstration source. Live Web2Json eligibility depends on Flare-supported/whitelisted source configuration."
+    },
+    {
+      "source_id": "SRC-003",
+      "name": "Recognized Business Data Provider",
+      "publisher": "Institutional Data Provider",
+      "source_type": "business_data",
+      "access_type": "public_api",
+      "url": "https://example-data-provider.com/api/company",
+      "supports_web2json": true,
+      "ai_assessment": {
+        "authority": 0.91,
+        "provenance": 0.91,
+        "relevance": 0.93,
+        "freshness": 0.90,
+        "corroboration": 0.82,
+        "overall": 0.89,
+        "classification": "preferred"
+      },
+      "use_for": [
+        "corporate_profile",
+        "business_status",
+        "external_risk_signals"
+      ],
+      "status": "eligible_for_fdc_verification",
+      "notes": "Secondary institutional source used to corroborate official sources."
+    },
+    {
+      "source_id": "SRC-004",
+      "name": "Official Company Website",
+      "publisher": "Vendor",
+      "source_type": "corporate_website",
+      "access_type": "public_web",
+      "url": "https://vendor.example.com",
+      "supports_web2json": false,
+      "ai_assessment": {
+        "authority": 0.72,
+        "provenance": 0.82,
+        "relevance": 0.94,
+        "freshness": 0.95,
+        "corroboration": 0.61,
+        "overall": 0.76,
+        "classification": "secondary"
+      },
+      "use_for": [
+        "company_description",
+        "services",
+        "public_claims"
+      ],
+      "status": "contextual",
+      "notes": "Useful for context but not automatically treated as decision-grade evidence."
+    },
+    {
+      "source_id": "SRC-005",
+      "name": "Established News Source",
+      "publisher": "Recognized News Organization",
+      "source_type": "news",
+      "access_type": "public_web",
+      "url": "https://example-news.com/company",
+      "supports_web2json": false,
+      "ai_assessment": {
+        "authority": 0.83,
+        "provenance": 0.88,
+        "relevance": 0.84,
+        "freshness": 0.92,
+        "corroboration": 0.76,
+        "overall": 0.83,
+        "classification": "secondary"
+      },
+      "use_for": [
+        "reputational_signals",
+        "public_events",
+        "external_risk_context"
+      ],
+      "status": "contextual",
+      "notes": "May support contextual analysis; important claims should be corroborated."
+    },
+    {
+      "source_id": "SRC-006",
+      "name": "Unknown Industry Website",
+      "publisher": "Unverified Publisher",
+      "source_type": "industry_website",
+      "access_type": "public_web",
+      "url": "https://unknown-example.com/company",
+      "supports_web2json": false,
+      "ai_assessment": {
+        "authority": 0.31,
+        "provenance": 0.29,
+        "relevance": 0.65,
+        "freshness": 0.58,
+        "corroboration": 0.22,
+        "overall": 0.37,
+        "classification": "reject"
+      },
+      "use_for": [],
+      "status": "rejected",
+      "notes": "Excluded from decision-grade evidence because provenance and corroboration are insufficient."
+    },
+    {
+      "source_id": "SRC-007",
+      "name": "Social Media Post",
+      "publisher": "Unverified User",
+      "source_type": "social_media",
+      "access_type": "public_web",
+      "url": "https://social.example.com/post",
+      "supports_web2json": false,
+      "ai_assessment": {
+        "authority": 0.18,
+        "provenance": 0.32,
+        "relevance": 0.44,
+        "freshness": 0.88,
+        "corroboration": 0.13,
+        "overall": 0.29,
+        "classification": "reject"
+      },
+      "use_for": [],
+      "status": "rejected",
+      "notes": "May be useful as a discovery signal but is not treated as decision-grade evidence."
+    }
+  ]
+}
